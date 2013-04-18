@@ -112,7 +112,7 @@ if [ "$REWRITEISSUE" = "rewrite" -a -f /etc/release ]; then
     # want to make to /etc/issue here or you will lose them when you reboot.
 
     if [ -x /usr/bin/linux_logo ]; then
-	/usr/bin/linux_logo -t "$R" -f | sed -e 's|\\|\\\\|g' > /etc/issue
+	/usr/bin/linux_logo -t "$R" -f > /etc/issue
     else
 	echo "$R" > /etc/issue
 	echo "Kernel $(uname -r) on $a $SMP$(uname -m) / \l" >> /etc/issue
