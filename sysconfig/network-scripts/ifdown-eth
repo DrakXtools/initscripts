@@ -108,6 +108,7 @@ fi
 dhcp_client_pids() {
     CLIENTS='dhcpcd|pump|dhcpxd|dhclient|zcip'
     [ -n "${daemon}" -o "$MII_NOT_SUPPORTED" = "yes" ] && CLIENTS="${CLIENTS}|wpa_supplicant"
+    [ -n "${daemon}" -o "$DHCP_CLIENT" = "dhcpcd" ] && dhcpcd -x -i {DEVICE}
     ps xw | egrep "${CLIENTS}" | grep ${DEVICE} | awk '{print $1;}'
 }
 
