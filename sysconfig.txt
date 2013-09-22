@@ -429,7 +429,7 @@ Generic options:
 
   MECH=shadow
     controls which data source saslauthd will consult when checking user
-    passwords; run 'saslauthd -a' to get a full list of available
+    passwords; run 'saslauthd -v' to get a full list of available
     authentication mechanisms
   SOCKETDIR=/var/run/saslauthd
     controls in which directory saslauthd will be directed to create its
@@ -687,7 +687,7 @@ Files in /etc/sysconfig/network-scripts/
   IPv6-only items for real interfaces:
     IPV6INIT=yes|no
       Enable or disable IPv6 static, DHCP, or autoconf configuration for this interface
-      Default: no
+      Default: yes
     IPV6FORWARDING=yes|no
       Enable or disable global forwarding of incoming IPv6 packets
       Note: Obsolete in interface specification!

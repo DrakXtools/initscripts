@@ -444,7 +444,6 @@ is_wireless_device ()
 
 install_bonding_driver ()
 {
-   [ -d "/sys/class/net/$1" ] && return 0
    [ ! -f /sys/class/net/bonding_masters ] && ( modprobe bonding || return 1 )
    if ! grep -sq "$1" /sys/class/net/bonding_masters; then
        echo "+$1" > /sys/class/net/bonding_masters 2>/dev/null
@@ -528,7 +527,7 @@ change_resolv_conf ()
     if [ $r -eq 0 ]; then
 	[ -x /sbin/restorecon ] && /sbin/restorecon /etc/resolv.conf >/dev/null 2>&1 # reset the correct context
 	/usr/bin/logger -p local7.notice -t "NET" -i "$0 : updated /etc/resolv.conf";
-	[ -n "$(/bin/pidof nscd)" ] && [ ! -e "$RESOLVCONF_FLAGFILE" ] && /usr/sbin/nscd -i hosts; # invalidate cache
+	[ -e /var/run/nscd/socket ] && /usr/sbin/nscd -i hosts; # invalidate cache
     fi;
     return $r;
 }

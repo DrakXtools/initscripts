@@ -1,6 +1,6 @@
 Summary: The inittab file and the /etc/init.d scripts
 Name: initscripts
-Version: 9.46
+Version: 9.50
 # ppp-watch is GPLv2+, everything else is GPLv2
 License: GPLv2 and GPLv2+
 Group: System Environment/Base
@@ -173,6 +173,7 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/rc.d/rc.local
 %config(noreplace) /etc/sysctl.conf
 /usr/lib/sysctl.d/00-system.conf
+/etc/sysctl.d/99-sysctl.conf
 %exclude /etc/profile.d/debug*
 /etc/profile.d/*
 /usr/sbin/sys-unconfig
@@ -217,6 +218,36 @@ rm -rf $RPM_BUILD_ROOT
 /etc/profile.d/debug*
 
 %changelog
+* Tue Sep 03 2013 Lukas Nykryn <lnykryn@redhat.com> - 9.50-1
+- ipcalc: support RFC3021 (#997271)
+- symlink /etc/sysctl.conf -> /etc/sysctl.d/
+- man: only action specified in LSB are redirected to systemd
+- service: filter actions that are not supported by systemctl in service (#947823)
+- install_bonding_driver: drop check for existing device (#991335)
+- consider IPV6INIT undefined as YES
+- don't care about network filesystems
+
+* Fri Jul 12 2013 Lukáš Nykrýn <lnykryn@redhat.com> - 9.48-1
+- man: add systemd man pages to service.8 "see also" section
+- add possibility to set domainname through /etc/sysconfig/network
+- rename_device: don't wait for lock with lower permissions
+- 256term.csh: remove quotes around variable (#979796)
+- drop useless variables from /etc/sysconfig/init
+- readonly-root: rpcidmapd restart is not needed anymore
+- ifup-eth: print error only if arping is really called (#974603)
+- readonly-root: Add /var/lib/samba to rwtab
+
+* Fri May 31 2013 Lukáš Nykrýn <lnykryn@redhat.com> - 9.47-1
+- network-functions: to determine state of nscd check socket not lock (#960779)
+- sysconfig.txt advised saslauthd -a instad of -v
+- update translations from transifex
+- drop translation for other initscripts
+- tweak ifup/ifdown usage and man page (#961917)
+- ctrl-alt-delete.target is provided by systemd package
+- remove some defaults from arch specific sysctl.conf
+- readonly-root: remount rpc_pipefs if readonly-root is used
+- service: mention legacy actions and systemctl redirection in man page
+
 * Fri Apr 12 2013 Lukáš Nykrýn <lnykryn@redhat.com> - 9.46-1
 - add /var/lib/NetworkManager
 - add ipip6 tunneling support (#928232, raorn@raorn.name)
