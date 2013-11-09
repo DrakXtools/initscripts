@@ -5,7 +5,7 @@
 # Debian idea.
 
 MODULES=/etc/modprobe.preload
-MODULES_D=$MODULES.d
+MODULES_D=${MODULES}.d
 
 # hardcoded from /etc/init.d/functions (to be faster and dash compliant)
 strstr() {
