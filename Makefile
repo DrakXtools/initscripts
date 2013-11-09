@@ -134,7 +134,7 @@ install:
 
 
 syntax-check:
-	for afile in `find . -type f -perm +111|grep -v \.csh | grep -v .git | grep -v po/ | grep -v 'gprintify.py' ` ; do \
+	for afile in `find . -type f -perm /111|grep -v \.csh | grep -v .git | grep -v po/ | grep -v 'gprintify.py' ` ; do \
 		if ! file $$afile | grep -s ELF  >/dev/null && ! file $$afile | grep -s perl >/dev/null; then \
 		    bash -n $$afile || { echo $$afile ; exit 1 ; } ; \
 		fi  ;\
