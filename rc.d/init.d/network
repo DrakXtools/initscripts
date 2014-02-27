@@ -9,7 +9,7 @@
 #
 ### BEGIN INIT INFO
 # Provides: network
-# Should-Start: irda resolvconf iptables ip6tables NetworkManager
+# Should-Start: irda resolvconf iptables ip6tables NetworkManager-wait-online NetworkManager
 # Should-Stop: irda resolvconf
 # Default-Start: 2 3 4 5
 # Short-Description: Bring up/down networking
