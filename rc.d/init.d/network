@@ -38,8 +38,6 @@ fi
 # if the ip configuration utility isn't around we can't function.
 [ -x /sbin/ip ] || exit 1
 
-# Even if IPX is configured, without the utilities we can't do much
-[ ! -x /sbin/ipx_internal_net ] || [ ! -x /sbin/ipx_configure ] && IPX=
 
 CWD=$(pwd)
 cd /etc/sysconfig/network-scripts
@@ -76,21 +74,6 @@ case "$1" in
 	
 	# bring up loopback interface
 	action "Bringing up loopback interface: " ./ifup ifcfg-lo
-
-	case "$IPX" in
-	  yes|true)
-	    /sbin/ipx_configure --auto_primary=$IPXAUTOPRIMARY \
-				   --auto_interface=$IPXAUTOFRAME
-	    if [ "$IPXINTERNALNETNUM" != "0" ]; then
-	       /sbin/ipx_internal_net add $IPXINTERNALNETNUM $IPXINTERNALNODENUM
-	    fi
-	    ;;
-	esac
-	# depreciated but we still use it.
-	if [ -f /proc/sys/net/ipv4/ip_forward ] && [[ "$FORWARD_IPV4" = "yes" || "$FORWARD_IPV4" = "true" ]]; 
-	    then
-		action "Enabling IPv4 packet forwarding" sysctl -w net.ipv4.ip_forward=1
-	fi
 
 	case "$VLAN" in
 	  yes)
@@ -254,14 +237,6 @@ case "$1" in
 		fi
 		)
 	done
-
-	case "$IPX" in
-	  yes|true)
-	    if [ "$IPXINTERNALNETNUM" != "0" ]; then
-	       /sbin/ipx_internal_net del
-	    fi
-	    ;;
-	esac
 
 	action "Shutting down loopback interface: " ./ifdown ifcfg-lo
 

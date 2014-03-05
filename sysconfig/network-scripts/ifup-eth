@@ -460,7 +460,7 @@ else
 	elif [ "${GATEWAYDEV}" = "${DEVICE}" ]; then
 	    ip route replace default ${METRIC:+metric $METRIC} \
 		${SRC} ${WINDOW:+window $WINDOW} dev ${REALDEVICE} ||
-			net_log $"Erorr adding default gateway for ${REALDEVICE}."
+			net_log $"Error adding default gateway for ${REALDEVICE}."
 	fi
     fi
     fi
@@ -493,10 +493,6 @@ if [[ "${DHCPV6C}"  = [Yy1]* ]] && [ -x /sbin/dhclient ]; then
             exit 1
         fi
     fi
-fi
-
-if [ "${IPX}" = yes ]; then
-       /etc/sysconfig/network-scripts/ifup-ipx ${DEVICE}
 fi
 
 exec /etc/sysconfig/network-scripts/ifup-post ${CONFIG} ${2}

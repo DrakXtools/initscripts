@@ -172,9 +172,10 @@ source_config ()
     else
 	ISALIAS=no
     fi
-    ! is_false $NM_CONTROLLED && is_nm_running && _use_nm=true
-    if [ -z "$UUID" -a "$_use_nm" = "true" ]; then
+    if ! is_false $NM_CONTROLLED && is_nm_running; then
+	nmcli con load "/etc/sysconfig/network-scripts/$CONFIG"
 	UUID=$(get_uuid_by_config $CONFIG)
+	[ -n "$UUID" ] && _use_nm=true
     fi
 }
 
@@ -273,14 +274,7 @@ do_netreport ()
 
 is_nm_running ()
 {
-    [ -x /usr/bin/nmcli ] && \
-    [ "$(LANG=C LC_ALL=C nmcli -t --fields running nm status 2>/dev/null)" = "running" ]
-}
-
-is_nm_device_unavailable ()
-{
-    [ -x /usr/bin/nmcli ] && \
-    LANG=C LC_ALL=C nmcli -t --fields device,state  dev status 2>/dev/null | grep -q "^${1}:unavailable$"
+    [ "$(LANG=C nmcli -t --fields running general status 2>/dev/null)" = "running" ]
 }
 
 is_nm_active ()
@@ -291,7 +285,7 @@ is_nm_active ()
 
 is_nm_device_unmanaged ()
 {
-    LANG=C LC_ALL=C nmcli -t --fields GENERAL dev list iface "${1}"  2>/dev/null | awk -F ':' '/GENERAL.STATE/ { if ($2 == "unmanaged") exit 0 ; else exit 1; }'
+    LANG=C nmcli -t --fields GENERAL dev show "${1}"  2>/dev/null | awk -F ':' '/GENERAL.STATE/ { if ($2 == "unmanaged") exit 0 ; else exit 1; }'
 }
 
 # Sets $alias to the device module if $? != 0
