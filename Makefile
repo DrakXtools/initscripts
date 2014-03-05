@@ -163,7 +163,7 @@ archive: clean syntax-check tag changelog
 	@mkdir -p initscripts-$(VERSION)/
 	@cp ChangeLog initscripts-$(VERSION)/
 	@tar --append -f initscripts-$(VERSION).tar initscripts-$(VERSION)
-	@xz -f initscripts-$(VERSION).tar
+	@xz -T0 -vf initscripts-$(VERSION).tar
 	@rm -rf initscripts-$(VERSION)
 	@echo "The archive is at initscripts-$(VERSION).tar.xz"
 	@sha1sum initscripts-$(VERSION).tar.xz > initscripts-$(VERSION).sha1sum
