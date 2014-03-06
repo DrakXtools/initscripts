@@ -7,22 +7,6 @@
 
 [ -e /etc/sysconfig/system ] && . /etc/sysconfig/system
 
-# Globetrotter support:
-#if [ -x /usr/share/harddrake/hwprofile ]; then
-#    action "Starting %s: " Globetrotter /usr/share/harddrake/hwprofile
-#else
-	# Call netprofile as it must be called before /etc/rc.d/rc to be able to change
-	# the active services.
-#	if [ -x /sbin/set-netprofile ]; then
-#	    INITLOG_ARGS="" action "Starting %s: " netprofile /sbin/set-netprofile
-#	fi
-#fi
-
-# check if /etc/resolv.conf exist - if not creates it
-#[ -f /etc/resolv.conf ] || {
-#               touch /etc/resolv.conf
-#}
-
 # start module build and hardware detection tools
 DKMS_TOOL=/usr/sbin/dkms_autoinstaller
 if [ "$DKMS_ONBOOT" != "no" ] && [ -x $DKMS_TOOL ]; then
