@@ -14,7 +14,7 @@ if [ "$DKMS_ONBOOT" != "no" ] && [ -x $DKMS_TOOL ]; then
 fi
 
 HARDDRAKE_TOOL=/usr/share/harddrake/service_harddrake
-if [ "$HARDDRAKE_ONBOOT" != "no" ] && [ -x $HARDDRAKE_TOOL ]; then
+if [ "$HARDDRAKE_ONBOOT" == "yes" ] && [ -x $HARDDRAKE_TOOL ]; then
     gprintf "Checking for new hardware"
     SYSTEMCTL_NO_BLOCK=1 $HARDDRAKE_TOOL 2>/dev/null
     RETVAL=$?
