@@ -49,9 +49,6 @@ if [ -r /etc/sysconfig/oem ]; then
     fi
 fi
 
-# Source functions
-. /etc/init.d/functions
-
 if [ "$REWRITEISSUE" = "rewrite" -a -f /etc/release ]; then
 
     arch=$(uname -m)
