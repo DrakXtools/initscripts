@@ -7,12 +7,6 @@
 
 [ -e /etc/sysconfig/system ] && . /etc/sysconfig/system
 
-# start module build and hardware detection tools
-DKMS_TOOL=/usr/sbin/dkms_autoinstaller
-if [ "$DKMS_ONBOOT" != "no" ] && [ -x $DKMS_TOOL ]; then
-    $DKMS_TOOL start
-fi
-
 HARDDRAKE_TOOL=/usr/share/harddrake/service_harddrake
 if [ "$HARDDRAKE_ONBOOT" == "yes" ] && [ -x $HARDDRAKE_TOOL ]; then
     gprintf "Checking for new hardware"
