@@ -655,6 +655,47 @@ is_false() {
     return 1
 }
 
+getarg() {
+    local _var _args _o _val _doecho
+    unset _var
+    unset _args
+    unset _val
+    unset _o
+    unset _doecho
+
+    _var="$1"
+    shift
+    _args=$@
+
+    for _o in $_args; do
+	if [ "${_o%%=*}" = "${_var%%=*}" ]; then
+	    if [ -n "${_var#*=}" -a "${_var#*=*}" != "${_var}" ]; then
+		# if $1 has a "=<value>", we want the exact match
+		if [ "$_o" = "$_var" ]; then
+		    _val="1";
+		    unset _doecho
+		fi
+		continue
+	    fi
+
+	    if [ "${_o#*=}" = "$_o" ]; then
+		# if argument has no "=<value>", we assume "=1"
+		_val="1";
+		unset _doecho
+		continue
+	    fi
+
+	    _val=${_o#*=};
+	    _doecho=1
+	fi
+    done
+    if [ -n "$_val" ]; then
+	[ "x$_doecho" != "x" ] && echo "$_val";
+	return 0;
+    fi
+    return 1;
+}
+
 # Apply sysctl settings, including files in /etc/sysctl.d
 apply_sysctl() {
     if [ -x /lib/systemd/systemd-sysctl ]; then
