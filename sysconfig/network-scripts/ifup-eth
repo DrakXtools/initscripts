@@ -88,6 +88,11 @@ if [ "${TYPE}" = "Tap" ]; then
       ip tuntap add ${TUNMODE} ${OWNER} dev ${DEVICE} > /dev/null
 fi
 
+# Team master initialization.
+if [ -n "${TEAM_CONFIG}" ] && [ ! "${DEVICETYPE}" = "Team" ] && [ -x ./ifup-Team ]; then
+    ./ifup-Team ${CONFIG} $2
+fi
+
 # now check the real state
 is_available ${REALDEVICE} || {
       if [ -n "$alias" ]; then
@@ -165,6 +170,13 @@ if [ -n "${MACADDR}" ]; then
 fi
 if [ -n "${MTU}" ]; then
    ip link set dev ${DEVICE} mtu ${MTU}
+fi
+
+# Team slave device?
+if [ -n "${TEAM_MASTER}" ] && [ ! "${DEVICETYPE}" = "TeamPort" ] && [ -x ./ifup-TeamPort ]; then
+    ./ifup-TeamPort ${CONFIG} $2
+    ethtool_set
+    exit 0
 fi
 
 # slave device?
