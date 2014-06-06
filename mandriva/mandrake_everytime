@@ -32,7 +32,8 @@ if [ $SECURE_LEVEL -lt 4 ]; then
     fi
 fi
 
-SYSTEM=${SYSTEM="Moondrake"}
+. /etc/os-release
+SYSTEM=${SYSTEM="${NAME}"}
 R=$(cat /etc/release)
 
 if [ -r /etc/sysconfig/oem ]; then
