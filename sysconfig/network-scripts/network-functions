@@ -479,8 +479,8 @@ bond_master_exists ()
 
 install_bonding_driver ()
 {
-   if ! bond_master_exists ${1}; then
-       modprobe bonding || return 1
+   [ ! -f /sys/class/net/bonding_masters ] && ( modprobe bonding || return 1 )
+   if ! grep -sqw "$1" /sys/class/net/bonding_masters; the
        echo "+$1" > /sys/class/net/bonding_masters 2>/dev/null
    fi
    (
