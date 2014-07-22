@@ -7,17 +7,21 @@
 
 [ -e /etc/sysconfig/system ] && . /etc/sysconfig/system
 
-HARDDRAKE_TOOL=/usr/share/harddrake/service_harddrake
-if [ "$HARDDRAKE_ONBOOT" == "yes" ] && [ -x $HARDDRAKE_TOOL ]; then
-    gprintf "Checking for new hardware"
-    SYSTEMCTL_NO_BLOCK=1 $HARDDRAKE_TOOL 2>/dev/null
-    RETVAL=$?
-    if [ "$RETVAL" -eq 0 ]; then
-        action "" /bin/true
-    else
-        action "" /bin/false
-    fi
-fi
+# Globetrotter support:
+#if [ -x /usr/share/harddrake/hwprofile ]; then
+#    action "Starting %s: " Globetrotter /usr/share/harddrake/hwprofile
+#else
+	# Call netprofile as it must be called before /etc/rc.d/rc to be able to change
+	# the active services.
+#	if [ -x /sbin/set-netprofile ]; then
+#	    INITLOG_ARGS="" action "Starting %s: " netprofile /sbin/set-netprofile
+#	fi
+#fi
+
+# check if /etc/resolv.conf exist - if not creates it
+#[ -f /etc/resolv.conf ] || {
+#               touch /etc/resolv.conf
+#}
 
 # /etc/issue and /etc/issue.net stuff
 
