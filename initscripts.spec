@@ -126,8 +126,6 @@ fi
 %{_sysconfdir}/sysconfig/network-scripts/ifup-tunnel
 %{_sysconfdir}/sysconfig/network-scripts/ifdown-tunnel
 %{_sysconfdir}/sysconfig/network-scripts/ifup-aliases
-%{_sysconfdir}/sysconfig/network-scripts/ifup-ippp
-%{_sysconfdir}/sysconfig/network-scripts/ifdown-ippp
 %{_sysconfdir}/sysconfig/network-scripts/ifup-wireless
 %{_sysconfdir}/sysconfig/network-scripts/ifup-isdn
 %{_sysconfdir}/sysconfig/network-scripts/ifdown-isdn
