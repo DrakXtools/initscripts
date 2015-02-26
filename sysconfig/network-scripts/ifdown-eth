@@ -94,7 +94,7 @@ fi
 
 # Kill running dhcp client if present
 dhcp_client_pids() {
-    CLIENTS='dhcpcd|pump|dhcpxd|dhclient|zcip'
+    CLIENTS='dhcpcd|pump|dhcpxd|dhclient|udhcpc|zcip'
     [ -n "${daemon}" -o "$MII_NOT_SUPPORTED" = "yes" ] && CLIENTS="${CLIENTS}|wpa_supplicant"
     ps xw | egrep "${CLIENTS}" | grep ${DEVICE} | awk '{print $1;}'
 }
@@ -110,7 +110,7 @@ fi
 
 # Kill running dhcp client if present
 dhcp_client_pids() {
-    CLIENTS='dhcpcd|pump|dhcpxd|dhclient|zcip'
+    CLIENTS='dhcpcd|pump|dhcpxd|dhclient|udhcpc|zcip'
     [ -n "${daemon}" -o "$MII_NOT_SUPPORTED" = "yes" ] && CLIENTS="${CLIENTS}|wpa_supplicant"
     [ -n "${daemon}" -o "$DHCP_CLIENT" = "dhcpcd" ] && dhcpcd -x -i {DEVICE}
     ps xw | egrep "${CLIENTS}" | grep ${DEVICE} | awk '{print $1;}'

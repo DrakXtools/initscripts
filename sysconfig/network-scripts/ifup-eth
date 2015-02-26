@@ -275,6 +275,8 @@ if [ -n "$DYNCONFIG" -a "XXX$DHCP_CLIENT" = "XXX" ];then
 	DHCP_CLIENT=/sbin/pump
     elif [ -x /sbin/dhcpxd ];then
 	DHCP_CLIENT=/sbin/dhcpxd
+    elif [ -x /sbin/udhcpc ];then
+	DHCP_CLIENT=/sbin/udhcpc
     else 
 	echo $"Can't find a dhcp client"
     if [ -x /usr/sbin/mdv-network-event ]; then
