@@ -53,7 +53,10 @@ if [ -n "${HWADDR}" ]; then
     FOUNDMACADDR=$(get_hwaddr ${REALDEVICE})
     if [ "${FOUNDMACADDR}" != "${HWADDR}" -a "${FOUNDMACADDR}" != "${MACADDR}" ]; then
 	    net_log $"Device ${DEVICE} has different MAC address than expected, ignoring."
-	    mdv-network-event connection_failure ${DEVICE}
+
+        if [ -x /usr/sbin/mdv-network-event ]; then
+            mdv-network-event connection_failure ${DEVICE}
+        fi
 	    exit 1
     fi
 fi
@@ -62,7 +65,9 @@ fi
 if [ "${TYPE}" = "Bridge" ]; then
       if [ ! -x /usr/sbin/brctl ]; then
 	  net_log $"Bridge support not available: brctl not found"
-	  mdv-network-event connection_failure ${DEVICE}
+      if [ -x /usr/sbin/mdv-network-event ]; then
+          mdv-network-event connection_failure ${DEVICE}
+      fi
 	  exit 1
       fi
       if [ ! -d /sys/class/net/${DEVICE}/bridge ]; then
@@ -109,7 +114,9 @@ is_available_wait ${REALDEVICE} ${DEVTIMEOUT} || {
       else
          net_log $"Device ${DEVICE} does not seem to be present, delaying initialization."
       fi
-      mdv-network-event connection_failure ${DEVICE}
+      if [ -x /usr/sbin/mdv-network-event ]; then
+          mdv-network-event connection_failure ${DEVICE}
+      fi
       exit 1
 }
 
@@ -270,7 +277,9 @@ if [ -n "$DYNCONFIG" -a "XXX$DHCP_CLIENT" = "XXX" ];then
 	DHCP_CLIENT=/sbin/dhcpxd
     else 
 	echo $"Can't find a dhcp client"
-	mdv-network-event connection_failure ${DEVICE}
+    if [ -x /usr/sbin/mdv-network-event ]; then
+        mdv-network-event connection_failure ${DEVICE}
+    fi
 	exit 1;
     fi
 fi  
@@ -360,24 +369,36 @@ if [ -n "${DYNCONFIG}" ]; then
     if [[ "${PERSISTENT_DHCLIENT}" !=  [yY1]* ]] && check_link_down ${DEVICE}; then
 	echo $" failed; no link present.  Check cable?"
 	ip link set dev ${DEVICE} down >/dev/null 2>&1
-	mdv-network-event connection_failure ${DEVICE}
+    if [ -x /usr/sbin/mdv-network-event ]; then
+        mdv-network-event connection_failure ${DEVICE}
+    fi
 	exit 1
     fi
 
     ethtool_set
 
-    mdv-network-event dhcp_request ${DEVICE}
-    if $DHCP_CLIENT $DHCP_ARGS ; then
-        mdv-network-event dhcp_success ${DEVICE}
-	echo $" done."
-	dhcpipv4="good"
-    else
-        mdv-network-event dhcp_failure ${DEVICE}
+    if [ -x /usr/sbin/mdv-network-event ]; then
+        mdv-network-event dhcp_request ${DEVICE}
+    fi
+        if $DHCP_CLIENT $DHCP_ARGS ; then
+	    if [ -x /usr/sbin/mdv-network-event ]; then
+		mdv-network-event dhcp_success ${DEVICE}
+	    fi
+            echo $" done."
+            dhcpipv4="good"
+        else
+	    if [ -x /usr/sbin/mdv-network-event ]; then
+		mdv-network-event dhcp_failure ${DEVICE}
+	    fi
 	# Associate a zeroconf IP address to an alias of the interface
 	if [ -x /sbin/zcip ]; then
-            mdv-network-event zcip_request ${DEVICE}
+	    if [ -x /usr/sbin/mdv-network-event ]; then
+		mdv-network-event zcip_request ${DEVICE}
+	    fi
 	    if /sbin/zcip -s -i $DEVICE:${ZEROCONF_ALIAS_NUMER=9}; then
-                mdv-network-event zcip_success ${DEVICE}
+		if [ -x /usr/sbin/mdv-network-event ]; then
+		    mdv-network-event zcip_success ${DEVICE}
+		fi
 		echo $" done."
 		if [ -x /etc/init.d/tmdns ]; then
 		    /etc/init.d/tmdns reload > /dev/null 2>&1
@@ -385,7 +406,9 @@ if [ -n "${DYNCONFIG}" ]; then
 		exit 0
 	    fi
 	fi
-        mdv-network-event zcip_failure ${DEVICE}
+	if [ -x /usr/sbin/mdv-network-event ]; then
+	    mdv-network-event zcip_failure ${DEVICE}
+	fi
 	echo $" failed."
 	if [[ "${IPV4_FAILURE_FATAL}"  = [Yy1]* ]] ; then
 	    exit 1
@@ -411,7 +434,9 @@ else
    
     if ! ip link set dev ${REALDEVICE} up ; then
 	net_log $"Failed to bring up ${DEVICE}."
-	mdv-network-event connection_failure ${DEVICE}
+	if [ -x /usr/sbin/mdv-network-event ]; then
+	    mdv-network-event connection_failure ${DEVICE}
+	fi
 	exit 1
     fi
 
@@ -434,21 +459,27 @@ else
     if [ "${REALDEVICE}" != "lo" ]; then
     # set IP address(es)
     for idx in {0..256} ; do
-	if [ -z "${ipaddr[$idx]}" ]; then
+        local _ipaddr = eval $ipaddr$idx
+        local _prefix = eval $prefix$idx
+        local _broadcast = eval $broadcast$idx
+        local _arpcheck = eval $arpcheck$idx
+        if [ -z "${_ipaddr}" ]; then
             break
         fi
 
-        if ! LC_ALL=C ip addr ls ${REALDEVICE} | LC_ALL=C grep -q "${ipaddr[$idx]}/${prefix[$idx]}" ; then
-            [ "${REALDEVICE}" != "lo" ] && [ "${arpcheck[$idx]}" != "no" ] && \
-            if ! /sbin/arping -q -c 2 -w ${ARPING_WAIT:-3} -D -I ${REALDEVICE} ${ipaddr[$idx]}; then
-                net_log $"Error, some other host already uses address ${ipaddr[$idx]}."
-                mdv-network-event connection_failure ${DEVICE}
+        if ! LC_ALL=C ip addr ls ${REALDEVICE} | LC_ALL=C grep -q "${_ipaddr}/${_prefix}" ; then
+            [ "${REALDEVICE}" != "lo" ] && [ "${_arpcheck}" != "no" ] && \
+            if ! /sbin/arping -q -c 2 -w ${ARPING_WAIT:-3} -D -I ${REALDEVICE} ${_ipaddr}; then
+                net_log $"Error, some other host already uses address ${_ipaddr}."
+		if [ -x /usr/sbin/mdv-network-event ]; then
+		    mdv-network-event connection_failure ${DEVICE}
+		fi
                 exit 1
             fi
 
-            if ! ip addr add ${ipaddr[$idx]}/${prefix[$idx]} \
-              brd ${broadcast[$idx]:-+} dev ${REALDEVICE} ${SCOPE} label ${DEVICE}; then
-                net_log $"Error adding address ${ipaddr[$idx]} for ${DEVICE}."
+            if ! ip addr add ${_ipaddr}/${_prefix} \
+              brd ${_broadcast:-+} dev ${REALDEVICE} ${SCOPE} label ${DEVICE}; then
+                net_log $"Error adding address ${_ipaddr} for ${DEVICE}."
             fi
         fi
 
@@ -458,9 +489,9 @@ else
 
         # update ARP cache of neighboring computers
         if [ "${REALDEVICE}" != "lo" ]; then
-          /usr/sbin/arping -q -A -c 1 -I ${REALDEVICE} ${ipaddr[$idx]}
+          /usr/sbin/arping -q -A -c 1 -I ${REALDEVICE} ${_ipaddr}
           ( sleep 2;
-            /usr/sbin/arping -q -U -c 1 -I ${REALDEVICE} ${ipaddr[$idx]} ) > /dev/null 2>&1 < /dev/null &
+            /usr/sbin/arping -q -U -c 1 -I ${REALDEVICE} ${_ipaddr} ) > /dev/null 2>&1 < /dev/null &
         fi
     done
     fi
@@ -468,7 +499,8 @@ else
     # Set a default route.
     if [ "${DEFROUTE}" != "no" ] && [ -z "${GATEWAYDEV}" -o "${GATEWAYDEV}" = "${REALDEVICE}" ]; then
 	# set up default gateway. replace if one already exists
-	if [ -n "${GATEWAY}" ] && [ "$(ipcalc --network ${GATEWAY} ${netmask[0]} 2>/dev/null)" = "NETWORK=${NETWORK}" ]; then
+    local _netmask = eval $netmask0
+	if [ -n "${GATEWAY}" ] && [ "$(ipcalc --network ${GATEWAY} eval ${_netmask} 2>/dev/null)" = "NETWORK=${NETWORK}" ]; then
 	    if [ -n "${ATM_ADDR}" -a -x /usr/sbin/atmarpd -a -x /usr/sbin/atmarp ]; then
 		ip link set dev ${REALDEVICE} down
 		ip link set dev ${REALDEVICE} up

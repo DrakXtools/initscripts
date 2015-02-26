@@ -129,7 +129,7 @@ eval ` (
 ) `
 [ -z "$default_GATEWAY" ] && default_GATEWAY=$network_GATEWAY
 
-function ini_env ()
+ini_env ()
 {
        DEVICE=""
        IPADDR=""
@@ -143,7 +143,7 @@ function ini_env ()
        ARPCHECK=""
 }
 
-function is_default_gateway ()
+is_default_gateway ()
 {
 	LC_ALL=C /sbin/ip route ls default scope global \
 		| awk '$3 == "'"$1"'" { found = 1; } END { exit found == 0; }'
@@ -154,7 +154,7 @@ function is_default_gateway ()
        # device using new_interface()
        #
 
-function new_interface ()
+new_interface ()
 {
 
        ipa=$IPADDR; ipb=${ipa#*.}; ipc=${ipb#*.};
@@ -301,6 +301,7 @@ function new_interface ()
 
 if [ "$BASH_VERSINFO" ]; then shopt -s nullglob; else allow_null_glob_expansion=foo; fi
 
+if [ -n "$(find ifcfg-${parent_device}:* 2>/dev/null)" ]; then
 for FILE in ifcfg-${parent_device}:* ; do
        is_ignored_file "$FILE" && continue
        ini_env;
@@ -309,7 +310,9 @@ for FILE in ifcfg-${parent_device}:* ; do
        [ "$ONPARENT" != "no" -a "$ONPARENT" != "NO" ] && new_interface;
        unset DEVICE
 done
+fi
 
+if [ -n "$(find ifcfg-${parent_device}-range* 2>/dev/null)" ]; then
 for FILE in ifcfg-${parent_device}-range* ; do
        is_ignored_file "$FILE" && continue
        ini_env;
@@ -340,6 +343,7 @@ for FILE in ifcfg-${parent_device}-range* ; do
        done
        
 done
+fi
 
        #
        # Remove any devices that should not be around

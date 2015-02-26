@@ -79,7 +79,9 @@ ipv6_test || exit 1
 ipv6_test_device_status $DEVICE
 if [ $? != 0 -a $? != 11 ]; then
 	# device doesn't exist or other problem occurs
-        mdv-network-event connection_failure ${DEVICE}
+	if [ -x /usr/sbin/mdv-network-event ]; then
+	    mdv-network-event connection_failure ${DEVICE}
+	fi
 	exit 1
 fi
 
@@ -174,7 +176,9 @@ if [ "$IPV6TO4INIT" = "yes" ]; then
 	if [ $? = 0 ]; then
 		# device is already up
 		net_log $"Device 'tun6to4' (from '$DEVICE') is already up, shutdown first"
-	        mdv-network-event connection_failure ${DEVICE}
+		if [ -x /usr/sbin/mdv-network-event ]; then
+		    mdv-network-event connection_failure ${DEVICE}
+		fi
 		exit 1
 	fi
 
@@ -303,7 +307,9 @@ if [ "$IPV6TO4INIT" = "yes" ]; then
 		fi
 	else
 		net_log $"6to4 configuration is not valid"
-	        mdv-network-event connection_failure ${DEVICE}
+		if [ -x /usr/sbin/mdv-network-event ]; then
+		    mdv-network-event connection_failure ${DEVICE}
+		fi
 		exit 1
         fi
 fi
