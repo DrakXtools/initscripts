@@ -126,6 +126,7 @@ eval ` (
        echo default_BROADCAST=$BROADCAST\;;
        echo default_GATEWAY=$GATEWAY\;;
        echo default_NO_ALIASROUTING=$NO_ALIASROUTING\;;
+       echo default_ARPCHECK=$ARPCHECK\;;
 ) `
 [ -z "$default_GATEWAY" ] && default_GATEWAY=$network_GATEWAY
 
@@ -140,7 +141,7 @@ ini_env ()
        GATEWAY=$default_GATEWAY
        NO_ALIASROUTING=$default_NO_ALIASROUTING
        ONPARENT=""
-       ARPCHECK=""
+       ARPCHECK=$default_ARPCHECK
 }
 
 is_default_gateway ()
@@ -266,7 +267,8 @@ new_interface ()
                is_available ${parent_device} && \
                ( grep -qswi "up" /sys/class/net/${parent_device}/operstate ||  grep -qswi "1" /sys/class/net/${parent_device}/carrier ) ; then
                    echo $"Determining if ip address ${IPADDR} is already in use for device ${parent_device}..."
-				   if ! /usr/sbin/arping -q -c 2 -w ${ARPING_WAIT:-3} -D -I ${parent_device} ${IPADDR} ; then
+				   /sbin/arping -q -c 2 -w ${ARPING_WAIT:-3} -D -I ${parent_device} ${IPADDR}
+				   if [ $? = 1 ]; then
 					   net_log $"Error, some other host already uses address ${IPADDR}."
 					   return 1
 				   fi

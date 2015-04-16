@@ -1,6 +1,6 @@
 Summary: Scripts to bring up network interfaces and legacy utilities
 Name: initscripts
-Version: 9.61
+Version: 9.62
 License: GPLv2
 Group: System Environment/Base
 Release: 1%{?dist}
@@ -70,9 +70,9 @@ touch %{buildroot}%{_sysconfdir}/rc.d/rc.local
 chmod 755 %{buildroot}%{_sysconfdir}/rc.d/rc.local
 
 %post
-touch /var/log/wtmp /var/run/utmp /var/log/btmp
-chown root:utmp /var/log/wtmp /var/run/utmp /var/log/btmp
-chmod 664 /var/log/wtmp /var/run/utmp
+touch /var/log/wtmp /var/log/btmp
+chown root:utmp /var/log/wtmp /var/log/btmp
+chmod 664 /var/log/wtmp
 chmod 600 /var/log/btmp
 
 /usr/sbin/chkconfig --add network > /dev/null 2>&1 || :
@@ -93,7 +93,6 @@ if [ $1 -ge 1 ]; then
 fi
 
 %files -f %{name}.lang
-%defattr(-,root,root)
 %dir %{_sysconfdir}/sysconfig/network-scripts
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/adjtime
 %config(noreplace) %{_sysconfdir}/sysconfig/init
@@ -126,6 +125,8 @@ fi
 %{_sysconfdir}/sysconfig/network-scripts/ifup-tunnel
 %{_sysconfdir}/sysconfig/network-scripts/ifdown-tunnel
 %{_sysconfdir}/sysconfig/network-scripts/ifup-aliases
+%{_sysconfdir}/sysconfig/network-scripts/ifup-ippp
+%{_sysconfdir}/sysconfig/network-scripts/ifdown-ippp
 %{_sysconfdir}/sysconfig/network-scripts/ifup-wireless
 %{_sysconfdir}/sysconfig/network-scripts/ifup-isdn
 %{_sysconfdir}/sysconfig/network-scripts/ifdown-isdn
@@ -172,18 +173,24 @@ fi
 %ghost %attr(0600,root,utmp) /var/log/btmp
 %ghost %attr(0664,root,utmp) /var/log/wtmp
 %ghost %attr(0664,root,utmp) /var/run/utmp
-%ghost %verify(not md5 size mtime) %config(noreplace,missingok) /etc/crypttab
 %{_sharedstatedir}/stateless
 %{_tmpfilesdir}/initscripts.conf
 %dir %{_libexecdir}/initscripts
 %dir %{_libexecdir}/initscripts/legacy-actions
 
 %files -n debugmode
-%defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/sysconfig/debug
 %{_sysconfdir}/profile.d/debug*
 
 %changelog
+* Thu Apr 09 2015 Lukáš Nykrýn <lnykryn@redhat.com> - 9.62-1
+- network-functions: fix change_resolv_conf after grep update
+- ifup-aliases: don't return with error when arping fails
+- init.d/functions: rc.debug option to debug initscripts
+- ifup-aliases: inherit ARPCHECK from parent device
+- network: report that we can't shut down network for root on netfs
+- ifdown-eth: use scope host for lo
+
 * Thu Jan 22 2015 Lukáš Nykrýn <lnykryn@redhat.com> - 9.61-1
 - specfile cleanup
 - ifup-ipv6: set accept_ra to 2 when IPV6FORWARDING=yes and IPV6_AUTOCONF=yes

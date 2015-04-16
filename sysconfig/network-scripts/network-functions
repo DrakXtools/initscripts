@@ -296,6 +296,11 @@ is_nm_handling ()
     LANG=C nmcli -t --fields device,state dev status 2>/dev/null | grep -q "^\(${1}:connected\)\|\(${1}:connecting.*\)$"
 }
 
+is_nm_handling ()
+{
+    LANG=C nmcli -t --fields device,state  dev status 2>/dev/null | grep -q "^\(${1}:connected\)\|\(${1}:connecting.*\)$"
+}
+
 is_nm_device_unmanaged ()
 {
     LANG=C nmcli -t --fields GENERAL dev show "${1}"  2>/dev/null | awk -F ':' '/GENERAL.STATE/ { if ($2 == "unmanaged") exit 0 ; else exit 1; }'
@@ -486,8 +491,8 @@ bond_master_exists ()
 
 install_bonding_driver ()
 {
-   [ ! -f /sys/class/net/bonding_masters ] && ( modprobe bonding || return 1 )
-   if ! grep -sqw "$1" /sys/class/net/bonding_masters; then
+   if ! bond_master_exists ${1}; then
+       modprobe bonding || return 1
        echo "+$1" > /sys/class/net/bonding_masters 2>/dev/null
    fi
    (
@@ -558,10 +563,10 @@ is_bonding_device ()
 change_resolv_conf ()
 {
     s=$(/bin/grep '^[\ \	]*option' /etc/resolv.conf 2>/dev/null);
-    if [ "x$s" != "x" ]; then
-       s="$s"$'\n';
-    fi;
     if [ $# -gt 1 ]; then
+       if [ "x$s" != "x" ]; then
+          s="$s"$'\n';
+       fi;
        n_args=$#;
        while [ $n_args -gt 0 ]; 
 	 do 
@@ -579,7 +584,7 @@ change_resolv_conf ()
          done;       
     elif [ $# -eq 1 -a -r "$1" ]; then
        if [ "x$s" != "x" ]; then
-	  s="$s"$(/bin/grep -vF "$s" $1);
+	  s="$s"$'\n'$(/bin/grep -vF "$s" $1);
        else
 	  s=$(cat $1);
        fi;

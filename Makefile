@@ -38,11 +38,6 @@ install:
 	if uname -m | grep -q s390 ; then \
 	  install -m644 sysctl.conf.s390 $(ROOT)/usr/lib/sysctl.d/00-system.conf ; fi
 
-	mkdir -p $(ROOT)/etc/X11
-	install -m755 prefdm $(ROOT)/etc/X11/prefdm
-	mkdir -p $(ROOT)/usr/bin
-	install -m755 display-manager-failure-message $(ROOT)/usr/bin/display-manager-failure-message
-
 	install -m755 -d $(ROOT)/etc/rc.d $(ROOT)/etc/sysconfig
 	cp -af rc.d/init.d $(ROOT)/etc/rc.d/
 	install -m644 sysconfig/debug sysconfig/init sysconfig/netconsole sysconfig/readonly-root $(ROOT)/etc/sysconfig/
@@ -81,9 +76,6 @@ install:
 	mkdir -p $(ROOT)/var/run/netreport $(ROOT)/var/log
 	chown $(SUPERUSER):$(SUPERGROUP) $(ROOT)/var/run/netreport
 	chmod u=rwx,g=rwx,o=rx $(ROOT)/var/run/netreport
-	touch $(ROOT)/var/run/utmp
-	touch $(ROOT)/var/log/wtmp
-	touch $(ROOT)/var/log/btmp
 
 	for i in 0 1 2 3 4 5 6 ; do \
 		dir=$(ROOT)/etc/rc.d/rc$$i.d; \

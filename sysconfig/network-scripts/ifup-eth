@@ -195,6 +195,13 @@ if [ -n "${TEAM_MASTER}" ] && [ ! "${DEVICETYPE}" = "TeamPort" ] && [ -x ./ifup-
     exit 0
 fi
 
+# Team slave device?
+if [ -n "${TEAM_MASTER}" ] && [ ! "${DEVICETYPE}" = "TeamPort" ] && [ -x ./ifup-TeamPort ]; then
+    ./ifup-TeamPort ${CONFIG} $2
+    ethtool_set
+    exit 0
+fi
+
 # slave device?
 if [ "${SLAVE}" = yes -a "${ISALIAS}" = no -a "${MASTER}" != "" ]; then
     install_bonding_driver ${MASTER}
@@ -469,14 +476,16 @@ else
             break
         fi
 
-        if ! LC_ALL=C ip addr ls ${REALDEVICE} | LC_ALL=C grep -q "${_ipaddr}/${_prefix}" ; then
-            [ "${REALDEVICE}" != "lo" ] && [ "${_arpcheck}" != "no" ] && \
-            if ! /sbin/arping -q -c 2 -w ${ARPING_WAIT:-3} -D -I ${REALDEVICE} ${_ipaddr}; then
-                net_log $"Error, some other host already uses address ${_ipaddr}."
-		if [ -x /usr/sbin/mdv-network-event ]; then
-		    mdv-network-event connection_failure ${DEVICE}
-		fi
-                exit 1
+        if ! LC_ALL=C ip addr ls ${REALDEVICE} | LC_ALL=C grep -q "${ipaddr[$idx]}/${prefix[$idx]}" ; then
+            if [ "${REALDEVICE}" != "lo" ] && [ "${arpcheck[$idx]}" != "no" ] ; then
+                    /sbin/arping -q -c 2 -w ${ARPING_WAIT:-3} -D -I ${REALDEVICE} ${ipaddr[$idx]}
+                    if [ $? = 1 ]; then
+                        net_log $"Error, some other host already uses address ${ipaddr[$idx]}."
+			if [ -x /usr/sbin/mdv-network-event ]; then
+			    mdv-network-event connection_failure ${DEVICE}
+			fi
+                        exit 1
+                    fi
             fi
 
             if ! ip addr add ${_ipaddr}/${_prefix} \
@@ -491,9 +500,9 @@ else
 
         # update ARP cache of neighboring computers
         if [ "${REALDEVICE}" != "lo" ]; then
-          /usr/sbin/arping -q -A -c 1 -I ${REALDEVICE} ${_ipaddr}
+          /sbin/arping -q -A -c 1 -I ${REALDEVICE} ${_ipaddr}
           ( sleep 2;
-            /usr/sbin/arping -q -U -c 1 -I ${REALDEVICE} ${_ipaddr} ) > /dev/null 2>&1 < /dev/null &
+            /sbin/arping -q -U -c 1 -I ${REALDEVICE} ${_ipaddr} ) > /dev/null 2>&1 < /dev/null &
         fi
     done
     fi

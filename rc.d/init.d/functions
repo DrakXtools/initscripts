@@ -739,3 +739,6 @@ if [ "$_use_systemctl" = "1" ]; then
 		exit $?
 	fi
 fi
+
+strstr "$(cat /proc/cmdline)" "rc.debug" && set -x
+
