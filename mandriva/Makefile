@@ -51,7 +51,6 @@ install: all check
 	install -D -m644 autofsck $(ROOT)/etc/sysconfig/autofsck
 	@for i in $(SUBDIRS);do	make -C $$i install;done
 
-	install -m755 dm $(ROOT)/etc/rc.d/init.d/
 	install -m755 hibernate-cleanup.sh $(ROOT)/sbin/
 	install -m755 lsb-init-functions $(ROOT)/lib/lsb/init-functions
 	install -m755 mdv-network-event $(ROOT)/usr/sbin/
