@@ -158,3 +158,7 @@ archive: clean syntax-check tag changelog
 	@rm -rf initscripts-$(VERSION)
 	@echo "The archive is at initscripts-$(VERSION).tar.xz"
 	@sha1sum initscripts-$(VERSION).tar.xz > initscripts-$(VERSION).sha1sum
+
+addupstreamrepo:
+	git remote add upstream http://git.fedorahosted.org/git/initscripts.git
+	git fetch upstream
