@@ -239,7 +239,7 @@ daemon() {
 	nicelevel=0
 	while [ "$1" != "${1##[-+]}" ]; do
 	  case $1 in
-	    '')    gprintf "%s: Usage: daemon [+/-nicelevel] {program}\n" $0
+	    '')    gprintf "%s: Usage: daemon [+/-nicelevel] {program} %s\n" $0 "[arg1]..."
 	           return 1;;
 	    --check)
 		   base=$2
@@ -275,7 +275,7 @@ daemon() {
 	    	   nice="nice -n $1"
 	           shift
 		   ;;
-	    *)     gprintf "%s: Usage: daemon [+/-nicelevel] {program}\n" $0
+	    *)     gprintf "%s: Usage: daemon [+/-nicelevel] {program} %s\n" $0 "[arg1]..."
 	           return 1;;
 	  esac
 	done
