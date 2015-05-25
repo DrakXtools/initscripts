@@ -117,7 +117,7 @@ case "$1" in
 			vpninterfaces="$vpninterfaces $i"
 			continue
 		fi
-		if [ "$TYPE" = "xDSL" -o "$TYPE" = "ADSL" ]; then
+		if [ "$TYPE" = "xDSL" -o "$TYPE" = "ADSL" -o "$TYPE" = "Modem" ]; then
 		        xdslinterfaces="$xdslinterfaces $i"
 			continue
 		fi
@@ -131,7 +131,7 @@ case "$1" in
 			continue
 		fi
 
-		if [ "${DEVICE%%.*}" != "$DEVICE"  -o  "${DEVICE##vlan}" != "$DEVICE" ] ; then
+		if [ "${DEVICE%%.*}" != "$DEVICE" -o "${DEVICE##vlan}" != "$DEVICE" ] ; then
 			vlaninterfaces="$vlaninterfaces $i"
 			continue
 		fi
@@ -216,12 +216,12 @@ case "$1" in
 		        bridgeinterfaces="$bridgeinterfaces $i"
 		        continue
 		fi
-		if [ "$TYPE" = "xDSL"  -o "$TYPE" = "ADSL" ]; then
+		if [ "$TYPE" = "xDSL" -o "$TYPE" = "ADSL" -o "$TYPE" = "Modem" ]; then
 		        xdslinterfaces="$xdslinterfaces $i"
 			continue
 		fi
 
-		if [ "${DEVICE%%.*}" != "$DEVICE"  -o  "${DEVICE##vlan}" != "$DEVICE" ] ; then
+		if [ "${DEVICE%%.*}" != "$DEVICE" -o "${DEVICE##vlan}" != "$DEVICE" ] ; then
 			vlaninterfaces="$vlaninterfaces $i"
 			continue
 		fi
