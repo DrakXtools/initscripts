@@ -405,7 +405,6 @@ if [ -n "${DYNCONFIG}" ]; then
 	echo $" done."
 	dhcpipv4="good"
     else
-<<<<<<< HEAD
 	if [ -x /usr/sbin/mdv-network-event ]; then
 	    mdv-network-event dhcp_failure ${DEVICE}
 	fi
@@ -486,7 +485,6 @@ else
         fi
 
         # set IP address(es)
-        # set IP address(es)
         for idx in {0..256} ; do
             local _ipaddr = eval $ipaddr$idx
             local _prefix = eval $prefix$idx
@@ -497,9 +495,11 @@ else
 
             if ! LC_ALL=C ip addr ls ${REALDEVICE} | LC_ALL=C grep -q "${_ipaddr}/${_prefixc}" ; then
                 if [ "${REALDEVICE}" != "lo" ] && [ "${_arpcheck}" != "no" ] ; then
-                    /sbin/arping -q -c 2 -w ${ARPING_WAIT:-3} -D -I ${REALDEVICE} ${_ipaddr}
+
+                    ARPING=$(/sbin/arping -c 2 -w ${ARPING_WAIT:-3} -D -I ${REALDEVICE} ${_ipaddr})
                     if [ $? = 1 ]; then
-                        net_log $"Error, some other host already uses address ${_ipaddr}."
+                        ARPINGMAC=$(echo $ARPING |  sed -ne 's/.*\[\(.*\)\].*/\1/p')
+                        net_log $"Error, some other host ($ARPINGMAC) already uses address $_ipaddr."
 			if [ -x /usr/sbin/mdv-network-event ]; then
 			    mdv-network-event connection_failure ${DEVICE}
 			fi
