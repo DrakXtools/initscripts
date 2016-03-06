@@ -126,7 +126,7 @@ case "$1" in
 		        bridgeinterfaces="$bridgeinterfaces $i"
 			continue
 		fi
-		if [ "$TYPE" = "IPSEC" ]; then
+		if [ "$TYPE" = "IPSEC" ] || [ "$TYPE" = "IPIP" ] || [ "$TYPE" = "GRE" ]; then
 			vpninterfaces="$vpninterfaces $i"
 			continue
 		fi
@@ -208,7 +208,7 @@ case "$1" in
 			vpninterfaces="$vpninterfaces $i"
 			continue
 		fi
-		if [ "$TYPE" = "IPSEC" ]; then
+		if [ "$TYPE" = "IPSEC" ] || [ "$TYPE" = "IPIP" ] || [ "$TYPE" = "GRE" ]; then
 			vpninterfaces="$vpninterfaces $i"
 			continue
 		fi
