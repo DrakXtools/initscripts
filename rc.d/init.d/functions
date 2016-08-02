@@ -57,7 +57,8 @@ systemctl_redirect () {
                 options="$options --no-block"
         fi
 
-        if systemctl show -p LoadState "$prog.service" | grep -q 'not-found' ; then
+        if ! systemctl show "$prog.service" > /dev/null 2>&1 || \
+           systemctl show -p LoadState "$prog.service" | grep -q 'not-found' ; then
                 action $"Reloading systemd: " /bin/systemctl daemon-reload
         fi
 
