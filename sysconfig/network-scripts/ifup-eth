@@ -353,14 +353,14 @@ case $(basename $DHCP_CLIENT) in
     DHCP_ARGS="$DHCP_ARGS --wait $DEVICE"
     ;;
     dhclient)
-    if [[ "${PERSISTENT_DHCLIENT}" = [yY1]* ]]; then
+    if is_true "${PERSISTENT_DHCLIENT}"; then
 	ONESHOT=
     else
 	ONESHOT="-1"
     fi
     generate_config_file_name
     generate_lease_file_name
-    DHCP_ARGS="$DHCP_ARGS $ONESHOT -q ${DHCLIENTCONF} -lf ${LEASEFILE} -pf /var/run/dhclient-${DEVICE}.pid $DEVICE"
+    DHCP_ARGS="$DHCP_ARGS ${ONESHOT} -q ${DHCLIENTCONF} -lf ${LEASEFILE} -pf /var/run/dhclient-${DEVICE}.pid ${DEVICE}"
     if [ -n "$DHCP_HOSTNAME" ]; then
 	if [ ! -e /etc/dhclient-${DEVICE}.conf ] || ! grep -q "[^# ]*send *host-name" /etc/dhclient-${DEVICE}.conf; then
 	    echo "send host-name \"${DHCP_HOSTNAME}\";  $BLURB" >> /etc/dhclient-${DEVICE}.conf
@@ -385,7 +385,7 @@ fi
 if [ -n "${DYNCONFIG}" ]; then
     echo
     echo -n $"Determining IP information for ${DEVICE}..."
-    if [[ "${PERSISTENT_DHCLIENT}" !=  [yY1]* ]] && check_link_down ${DEVICE}; then
+    if ! is_true "${PERSISTENT_DHCLIENT}" && check_link_down ${DEVICE}; then
 	echo $" failed; no link present.  Check cable?"
 	if [ -x /usr/sbin/mdv-network-event ]; then
 	    mdv-network-event connection_failure ${DEVICE}
@@ -405,6 +405,7 @@ if [ -n "${DYNCONFIG}" ]; then
 	echo $" done."
 	dhcpipv4="good"
     else
+<<<<<<< HEAD
 	if [ -x /usr/sbin/mdv-network-event ]; then
 	    mdv-network-event dhcp_failure ${DEVICE}
 	fi
@@ -428,10 +429,10 @@ if [ -n "${DYNCONFIG}" ]; then
 	    mdv-network-event zcip_failure ${DEVICE}
 	fi
 	echo $" failed."
-	if [[ "${IPV4_FAILURE_FATAL}"  = [Yy1]* ]] ; then
+        if is_true "${IPV4_FAILURE_FATAL}"; then
 	    exit 1
 	fi
-	if [[ "$IPV6INIT" = [nN0]* || "$DHCPV6C" != [yY1]* ]] ; then
+        if is_false "$IPV6INIT" || ! is_true "$DHCPV6C"; then
 	    exit 1
 	fi
 	net_log "Unable to obtain IPv4 DHCP address ${DEVICE}." warning
@@ -569,7 +570,7 @@ fi
 
 # IPv6 initialisation?
 /etc/sysconfig/network-scripts/ifup-ipv6 ${CONFIG}
-if [[ "${DHCPV6C}"  = [Yy1]* ]] && [ -x /sbin/dhclient ]; then
+if is_true "${DHCPV6C}" && [ -x /sbin/dhclient ]; then
     generate_config_file_name 6
     generate_lease_file_name 6
     echo
