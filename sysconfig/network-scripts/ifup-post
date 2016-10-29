@@ -23,7 +23,9 @@ if is_false "$ISALIAS"; then
     /etc/sysconfig/network-scripts/ifup-aliases ${DEVICE} ${CONFIG}
 fi
 
-/etc/sysconfig/network-scripts/ifup-routes ${REALDEVICE} ${DEVNAME}
+if ! is_true "$NOROUTESET"; then
+    /etc/sysconfig/network-scripts/ifup-routes ${REALDEVICE} ${DEVNAME}
+fi
 
 # metric setting (skip for alias interfaces)
 if [ "${REALDEVICE}" = "${DEVICE}" ] && [ -n "$METRIC" ] && type -p ifmetric > /dev/null 2>&1; then
