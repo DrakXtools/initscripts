@@ -79,9 +79,7 @@ ipv6_test || exit 1
 ipv6_test_device_status $DEVICE
 if [ $? != 0 -a $? != 11 ]; then
     # device doesn't exist or other problem occurs
-    if [ -x /usr/sbin/mdv-network-event ]; then
-	mdv-network-event connection_failure ${DEVICE}
-    fi
+    mdv_network_event connection_failure ${DEVICE}
     exit 1
 fi
 
@@ -183,9 +181,7 @@ if [ "$IPV6TO4INIT" = "yes" ]; then
 	if [ $? = 0 ]; then
 		# device is already up
 		net_log $"Device 'tun6to4' (from '$DEVICE') is already up, shutdown first"
-		if [ -x /usr/sbin/mdv-network-event ]; then
-		    mdv-network-event connection_failure ${DEVICE}
-		fi
+		mdv_network_event connection_failure ${DEVICE}
 		exit 1
 	fi
 
@@ -215,9 +211,7 @@ if [ "$IPV6TO4INIT" = "yes" ]; then
     if [ $? = 0 ]; then
         # device is already up
         net_log $"Device 'tun6to4' (from '$DEVICE') is already up, shutdown first"
-	if [ -x /usr/sbin/mdv-network-event ]; then
-	    mdv-network-event connection_failure ${DEVICE}
-	fi
+	mdv_network_event connection_failure ${DEVICE}
         exit 1
     fi
 
@@ -245,9 +239,7 @@ if [ "$IPV6TO4INIT" = "yes" ]; then
     if [ -n "$ipv4addr" ]; then
         if ! ipv6_test_ipv4_addr_global_usable $ipv4addr; then
 	    net_log $"Given IPv4 address '$ipv4addr' is not globally usable" info
-	    if [ -x /usr/sbin/mdv-network-event ]; then
-		mdv-network-event connection_failure ${DEVICE}
-	    fi
+	    mdv_network_event connection_failure ${DEVICE}
 	    valid6to4config="no"
         fi
         if [ -z "$IPV6TO4_RELAY" ]; then

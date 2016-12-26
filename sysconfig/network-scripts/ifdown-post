@@ -56,9 +56,7 @@ fi
 # Notify programs that have requested notification
 do_netreport
 
-if [ -x /usr/sbin/mdv-network-event ]; then
-    mdv-network-event interface_down ${DEVICE}
-fi
+mdv_network_event interface_down ${DEVICE}
 
 if [ -d /etc/sysconfig/network-scripts/ifdown.d -a -x /usr/bin/run-parts ]; then
     /usr/bin/run-parts --arg ${DEVICE} /etc/sysconfig/network-scripts/ifdown.d

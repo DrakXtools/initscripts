@@ -145,7 +145,7 @@ if [ "${VLAN}" = "yes" ] && [ "$ISALIAS" = "no" ] && [ -n "$DEVICE" ]; then
 fi
 
 # signalling the start of connection
-mdv-network-event connection_start ${DEVICE}
+mdv_network_event connection_start ${DEVICE}
 
 if [ -x /sbin/ifup-pre-local ]; then
     /sbin/ifup-pre-local ${CONFIG} $2

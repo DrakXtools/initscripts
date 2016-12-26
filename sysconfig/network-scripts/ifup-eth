@@ -53,9 +53,7 @@ if [ -n "${hwaddr}" ]; then
     foundmacaddr=$(get_hwaddr ${realdevice})
     if [ "${foundmacaddr}" != "${hwaddr}" -a "${foundmacaddr}" != "${macaddr}" ]; then
 	net_log $"device ${device} has different mac address than expected, ignoring."
-	if [ -x /usr/sbin/mdv-network-event ]; then
-	    mdv-network-event connection_failure ${DEVICE}
-	fi
+        mdv_network_event connection_failure ${DEVICE}
 	exit 1
     fi
 fi
@@ -64,9 +62,7 @@ fi
 if [ "${TYPE}" = "Bridge" ]; then
     if [ ! -x /usr/sbin/brctl ]; then
         net_log $"Bridge support not available: brctl not found"
-	if [ -x /usr/sbin/mdv-network-event ]; then
-	    mdv-network-event connection_failure ${DEVICE}
-	fi
+        mdv_network_event connection_failure ${DEVICE}
         exit 1
     fi
     if [ ! -d /sys/class/net/${DEVICE}/bridge ]; then
@@ -115,18 +111,14 @@ is_available_wait ${REALDEVICE} ${DEVTIMEOUT} || {
       else
          net_log $"Device ${DEVICE} does not seem to be present, delaying initialization."
       fi
-      if [ -x /usr/sbin/mdv-network-event ]; then
-          mdv-network-event connection_failure ${DEVICE}
-      fi
+      mdv_network_event connection_failure ${DEVICE}
       exit 1
     if [ -n "$alias" ]; then
         net_log $"$alias device ${DEVICE} does not seem to be present, delaying initialization."
     else
         net_log $"Device ${DEVICE} does not seem to be present, delaying initialization."
     fi
-    if [ -x /usr/sbin/mdv-network-event ]; then
-	mdv-network-event connection_failure ${DEVICE}
-    fi
+    mdv_network_event connection_failure ${DEVICE}
     exit 1
 }
 
@@ -296,9 +288,7 @@ if [ -n "$DYNCONFIG" -a "XXX$DHCP_CLIENT" = "XXX" ];then
 	DHCP_CLIENT=/sbin/udhcpc
     else 
 	echo $"Can't find a dhcp client"
-    if [ -x /usr/sbin/mdv-network-event ]; then
-        mdv-network-event connection_failure ${DEVICE}
-    fi
+        mdv_network_event connection_failure ${DEVICE}
 	exit 1;
     fi
 fi  
@@ -387,36 +377,24 @@ if [ -n "${DYNCONFIG}" ]; then
     echo -n $"Determining IP information for ${DEVICE}..."
     if ! is_true "${PERSISTENT_DHCLIENT}" && check_link_down ${DEVICE}; then
 	echo $" failed; no link present.  Check cable?"
-	if [ -x /usr/sbin/mdv-network-event ]; then
-	    mdv-network-event connection_failure ${DEVICE}
-	fi
+        mdv_network_event connection_failure ${DEVICE}
         exit 1
     fi
 
     ethtool_set
 
-    if [ -x /usr/sbin/mdv-network-event ]; then
-	mdv-network-event dhcp_request ${DEVICE}
-    fi
+    mdv_network_event dhcp_request ${DEVICE}
     if $DHCP_CLIENT $DHCP_ARGS ; then
-	if [ -x /usr/sbin/mdv-network-event ]; then
-	    mdv-network-event dhcp_success ${DEVICE}
-	fi
+        mdv_network_event dhcp_success ${DEVICE}
 	echo $" done."
 	dhcpipv4="good"
     else
-	if [ -x /usr/sbin/mdv-network-event ]; then
-	    mdv-network-event dhcp_failure ${DEVICE}
-	fi
+        mdv_network_event dhcp_failure ${DEVICE}
 	# Associate a zeroconf IP address to an alias of the interface
 	if [ -x /sbin/zcip ]; then
-	    if [ -x /usr/sbin/mdv-network-event ]; then
-		mdv-network-event zcip_request ${DEVICE}
-	    fi
-	    if /sbin/zcip -s -i $DEVICE:${ZEROCONF_ALIAS_NUMER=9}; then
-		if [ -x /usr/sbin/mdv-network-event ]; then
-		    mdv-network-event zcip_success ${DEVICE}
-		fi
+            mdv_network_event zcip_request ${DEVICE}
+            if /sbin/zcip -s -i $DEVICE:${ZEROCONF_ALIAS_NUMER=9}; then
+                mdv_network_event zcip_success ${DEVICE}
 		echo $" done."
 		if [ -x /etc/init.d/tmdns ]; then
 		    /etc/init.d/tmdns reload > /dev/null 2>&1
@@ -424,9 +402,7 @@ if [ -n "${DYNCONFIG}" ]; then
 		exit 0
 	    fi
 	fi
-	if [ -x /usr/sbin/mdv-network-event ]; then
-	    mdv-network-event zcip_failure ${DEVICE}
-	fi
+        mdv_network_event zcip_failure ${DEVICE}
 	echo $" failed."
         if is_true "${IPV4_FAILURE_FATAL}"; then
 	    exit 1
@@ -435,9 +411,7 @@ if [ -n "${DYNCONFIG}" ]; then
 	    exit 1
 	fi
 	net_log "Unable to obtain IPv4 DHCP address ${DEVICE}." warning
-        if [ -x /usr/sbin/mdv-network-event ]; then
-            mdv-network-event dhcp_request ${DEVICE}
-        fi
+        mdv_network_event dhcp_request ${DEVICE}
         # end dynamic device configuration
 else 
     if [ -z "${IPADDR}" -a -z "${IPADDR0}" -a -z "${IPADDR1}" -a -z "${IPADDR2}" ]; then
@@ -451,9 +425,7 @@ else
 
     if ! ip link set dev ${REALDEVICE} up ; then
 	net_log $"Failed to bring up ${DEVICE}."
-	if [ -x /usr/sbin/mdv-network-event ]; then
-	    mdv-network-event connection_failure ${DEVICE}
-	fi
+        mdv_network_event connection_failure ${DEVICE}
 	exit 1
     fi
 
@@ -462,9 +434,7 @@ else
 
         if ! ip link set dev ${REALDEVICE} up ; then
             net_log $"Failed to bring up ${DEVICE}."
-            if [ -x /usr/sbin/mdv-network-event ]; then
-                mdv-network-event connection_failure ${DEVICE}
-            fi
+            mdv_network_event connection_failure ${DEVICE}
             exit 1
         fi
 
@@ -500,9 +470,7 @@ else
                     if [ $? = 1 ]; then
                         ARPINGMAC=$(echo $ARPING |  sed -ne 's/.*\[\(.*\)\].*/\1/p')
                         net_log $"Error, some other host ($ARPINGMAC) already uses address $_ipaddr."
-			if [ -x /usr/sbin/mdv-network-event ]; then
-			    mdv-network-event connection_failure ${DEVICE}
-			fi
+                        mdv_network_event connection_failure ${DEVICE}
                         exit 1
                     fi
                 fi
@@ -510,9 +478,7 @@ else
                 if ! ip addr add ${_ipaddr}/${_prefix} \
                     brd ${_broadcast:-+} dev ${REALDEVICE} ${SCOPE} label ${DEVICE}; then
                     net_log $"Error adding address ${_ipaddr} for ${DEVICE}."
-                    if [ -x /usr/sbin/mdv-network-event ]; then
-                        mdv-network-event connection_failure ${DEVICE}
-                    fi
+                    mdv_network_event connection_failure ${DEVICE}
                 fi
             fi
 

@@ -80,6 +80,12 @@ if [ -z "${CONSOLETYPE:-}" ]; then
     fi
 fi
 
+mdv_network_event () {
+    if [ -x /usr/sbin/mdv-network-event ]; then
+        mdv-network-event $@
+    fi
+}
+
 load_i18_settings() {
     if [ -f /etc/sysconfig/i18n -o -f /etc/locale.conf ]; then
         if [ -z "$NOLOCALE" ]; then

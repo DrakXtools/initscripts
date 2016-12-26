@@ -117,9 +117,7 @@ fi
 # Notify programs that have requested notification
 do_netreport
 
-if [ -x /usr/binh/mdv-network-event ]; then
-    mdv-network-event interface_up ${DEVICE}
-fi
+mdv_network_event interface_up ${DEVICE}
 
 if [ -d /etc/sysconfig/network-scripts/ifup.d -a -x /usr/bin/run-parts ]; then
     /usr/bin/run-parts --arg ${DEVICE} /etc/sysconfig/network-scripts/ifup.d
