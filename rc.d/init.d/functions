@@ -80,7 +80,6 @@ if [ -z "${CONSOLETYPE:-}" ]; then
     fi
 fi
 
-<<<<<<< HEAD
 load_i18_settings() {
     if [ -f /etc/sysconfig/i18n -o -f /etc/locale.conf ]; then
         if [ -z "$NOLOCALE" ]; then
